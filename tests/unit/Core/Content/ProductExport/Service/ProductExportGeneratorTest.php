@@ -738,7 +738,7 @@ class ProductExportGeneratorTest extends TestCase
             ->with($productExport, $context, static::callback(static fn (array $data): bool => $data['product'] === $simple))
             ->willReturn(" \n\t ");
         $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->with('', '', $context)->willReturn('');
-        $this->productExportValidator->expects($this->once())->method('validate')->with($productExport, '')->willReturn([]);
+        $this->productExportValidator->expects($this->never())->method('validate');
         $this->connection->expects($this->once())->method('delete');
         $this->breadcrumbBuilder->expects($this->never())->method('getProductSeoCategory');
 
@@ -746,6 +746,7 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame('', $result->getContent());
+        static::assertSame([], $result->getErrors());
     }
 
     public function testGenerateBatchModeSignalsNextBatchWithKeysetCursor(): void
@@ -770,7 +771,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $this->productExportRender->expects($this->once())->method('renderBody')->willReturn('product');
         $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->willReturnArgument(0);
-        $this->productExportValidator->expects($this->once())->method('validate')->willReturn([]);
+        $this->productExportValidator->expects($this->never())->method('validate');
         $this->connection->expects($this->once())->method('delete');
         $this->breadcrumbBuilder->expects($this->never())->method('getProductSeoCategory');
 
@@ -779,6 +780,7 @@ class ProductExportGeneratorTest extends TestCase
         static::assertNotNull($result);
         static::assertTrue($result->hasNextBatch());
         static::assertSame(42, $result->getOffset());
+        static::assertSame([], $result->getErrors());
     }
 
     public function testGenerateBatchModeStopsWhenBufferIsNotFilled(): void
@@ -802,7 +804,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $this->productExportRender->expects($this->never())->method('renderBody');
         $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->willReturnArgument(0);
-        $this->productExportValidator->expects($this->once())->method('validate')->willReturn([]);
+        $this->productExportValidator->expects($this->never())->method('validate');
         $this->connection->expects($this->once())->method('delete');
         $this->breadcrumbBuilder->expects($this->never())->method('getProductSeoCategory');
 
@@ -811,6 +813,7 @@ class ProductExportGeneratorTest extends TestCase
         static::assertNotNull($result);
         static::assertFalse($result->hasNextBatch());
         static::assertSame(41, $result->getOffset());
+        static::assertSame([], $result->getErrors());
     }
 
     public function testGeneratePopulatesSeoCategoryForExportedProducts(): void
